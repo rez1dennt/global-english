@@ -554,6 +554,7 @@ html.js .price-disclosure[data-state="open"] .price-disclosure__content { grid-t
     .price-points { margin-block: var(--space-5); }
     .price-points li { font-size: var(--font-size-sm); }
     .price-card { padding: var(--space-8) var(--space-6); }
+    .price-card > .button { width: min(100%,12.75rem); min-height: 3rem; margin-inline: auto; padding: var(--space-3) var(--space-5); gap: var(--space-2); font-size: var(--font-size-xs); line-height: 1.35; }
     .contact-section { padding-block: var(--space-12); }
     .contact-panel { grid-template-columns: 1fr; gap: var(--space-8); }
     .contact-panel__copy h2 { font-size: 2.6rem; }

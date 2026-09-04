@@ -46,6 +46,13 @@ try {
         assert.equal(await page.locator('select').count(), 0);
         const ids = await page.locator('[id]').evaluateAll(els => els.map(el => el.id));
         assert.equal(ids.length, new Set(ids).size, 'Duplicate IDs');
+        const priceCtaBox = await page.locator('.price-card > .button').boundingBox();
+        assert.ok(priceCtaBox, 'Price CTA is missing');
+        if (width <= 360) {
+            assert.ok(priceCtaBox.width <= 210, `Mobile price CTA is too wide: ${priceCtaBox.width}px at ${width}px`);
+            assert.ok(priceCtaBox.height >= 48 && priceCtaBox.height <= 60, `Mobile price CTA height is ${priceCtaBox.height}px at ${width}px`);
+        }
+        if (width >= 768) assert.ok(priceCtaBox.width > 210, `Desktop price CTA unexpectedly compact at ${width}px`);
         const allSections = ['home','about','benefits','teachers','reviews','prices','branches','contacts'];
         for(const id of allSections) assert.equal(await page.locator('#' + id).count(), 1);
         if (screenshotDir) {
