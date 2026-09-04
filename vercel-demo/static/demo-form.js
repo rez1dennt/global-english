@@ -23,9 +23,6 @@
                 }, 0);
             });
 
-            form.querySelectorAll('[data-demo-name]').forEach(function (field) {
-                field.name = field.dataset.demoName;
-            });
             submit.disabled = false;
         });
     }

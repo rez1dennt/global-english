@@ -232,12 +232,16 @@
 
     function initFormInstance(form) {
 
-        var name = form.elements.name;
-        var phoneInput = form.elements.phone;
+        var name = form.elements.name || form.querySelector('[data-demo-name="name"]');
+        var phoneInput = form.elements.phone || form.querySelector('[data-demo-name="phone"]');
         var consent = form.elements.consent;
         var submit = form.querySelector('[type="submit"]');
         var status = form.querySelector('[data-form-status]');
         var phone = window.GlobalEnglishPhone;
+
+        if (!name || !phoneInput || !consent || !submit || !status) {
+            return;
+        }
 
         var statusMessages = {
             success: ['success', 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.'],

@@ -108,8 +108,8 @@ try {
     const form = page.locator('[data-form-source="inline"]');
     await form.locator('[type="submit"]').click();
     assert.equal(await form.locator('[aria-invalid="true"]').count(), 3);
-    await form.locator('[name="name"]').fill('Анна');
-    await form.locator('[name="phone"]').fill('+79600643141');
+    await form.locator('[data-demo-name="name"]').fill('Анна');
+    await form.locator('[data-demo-name="phone"]').fill('+79600643141');
     await form.locator('[name="consent"]').check();
     const postBefore = postRequests;
     await form.locator('[type="submit"]').click();
@@ -121,8 +121,8 @@ try {
     await trigger.click();
     await page.waitForFunction(() => document.querySelector('[data-enrollment-modal]').dataset.state === 'open');
     const modalForm = page.locator('[data-form-source="modal"]');
-    await modalForm.locator('[name="name"]').fill('Анна');
-    await modalForm.locator('[name="phone"]').fill('+79600643141');
+    await modalForm.locator('[data-demo-name="name"]').fill('Анна');
+    await modalForm.locator('[data-demo-name="phone"]').fill('+79600643141');
     await modalForm.locator('[name="consent"]').check();
     const modalPostBefore = postRequests;
     await modalForm.locator('[type="submit"]').click();
@@ -136,6 +136,26 @@ try {
     await page.locator('[data-cookie-accept]').click();
     assert.equal(await page.evaluate(() => localStorage.getItem('globalEnglishCookieConsentV1')), 'all');
     assert.match(await fetch(base + '/robots.txt').then(response => response.text()), /Disallow:\s*\//);
+
+    const nativeSubmit = await browser.newContext({ viewport: { width: 320, height: 900 } });
+    const nativeSubmitPage = await nativeSubmit.newPage();
+    const nativeSubmitLeaks = [];
+    nativeSubmitPage.on('request', request => {
+        const body = request.postData() || '';
+        if (/Анна|79600643141|%D0%90%D0%BD%D0%BD%D0%B0/i.test(request.url() + body)) nativeSubmitLeaks.push(request.url());
+    });
+    await nativeSubmitPage.goto(base + '/', { waitUntil: 'load' });
+    for (const source of ['inline', 'modal']) {
+        const nativeForm = nativeSubmitPage.locator(`[data-form-source="${source}"]`);
+        assert.equal(await nativeForm.locator('[data-demo-name="name"]').getAttribute('name'), null);
+        assert.equal(await nativeForm.locator('[data-demo-name="phone"]').getAttribute('name'), null);
+        await nativeForm.locator('[data-demo-name="name"]').evaluate(field => { field.value = 'Анна'; });
+        await nativeForm.locator('[data-demo-name="phone"]').evaluate(field => { field.value = '+7 (960) 064-31-41'; });
+        await nativeForm.evaluate(form => HTMLFormElement.prototype.submit.call(form));
+        await nativeSubmitPage.waitForLoadState('load');
+    }
+    assert.deepEqual(nativeSubmitLeaks, []);
+    await nativeSubmit.close();
 
     const noJavaScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
     const noJavaScriptPage = await noJavaScript.newPage();
@@ -165,11 +185,16 @@ try {
     await blockedScript.route('**/demo-form.js', route => route.abort());
     const blockedScriptPage = await blockedScript.newPage();
     const blockedLeaks = [];
+    const blockedErrors = [];
+    blockedScriptPage.on('pageerror', error => blockedErrors.push(error.message));
     blockedScriptPage.on('request', request => {
         const body = request.postData() || '';
         if (request.method() === 'POST' || /Анна|79600643141|%D0%90%D0%BD%D0%BD%D0%B0/i.test(request.url() + body)) blockedLeaks.push(request.url());
     });
     await blockedScriptPage.goto(base + '/', { waitUntil: 'load' });
+    await blockedScriptPage.locator('.price-disclosure__toggle').click();
+    await blockedScriptPage.waitForFunction(() => document.querySelector('.price-disclosure').dataset.state === 'open');
+    assert.ok(await blockedScriptPage.locator('[data-revealed="true"]').count() > 0);
     for (const source of ['inline', 'modal']) {
         const blockedForm = blockedScriptPage.locator(`[data-form-source="${source}"]`);
         assert.equal(await blockedForm.locator('[type="submit"]').isDisabled(), true);
@@ -181,6 +206,7 @@ try {
         await blockedScriptPage.waitForLoadState('load');
     }
     assert.deepEqual(blockedLeaks, []);
+    assert.deepEqual(blockedErrors, []);
     await blockedScript.close();
     assert.deepEqual(errors, []);
     console.log('VERCEL DEMO QA: PASS (3 routes, 4 viewports, interactions, Cookie, no-JS, zero POST requests)');
