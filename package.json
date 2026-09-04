@@ -1,0 +1,8 @@
+{
+  "name": "global-english-vercel-demo",
+  "private": true,
+  "scripts": {
+    "export:vercel": "node scripts/export-vercel-demo.mjs",
+    "build": "node scripts/build-vercel-demo.mjs"
+  }
+}

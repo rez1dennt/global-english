@@ -11,3 +11,6 @@ white-orange-cta-desktop.png
 .DS_Store
 Thumbs.db
 *.log
+
+# Генерируемая Vercel-сборка
+vercel-demo/dist/
