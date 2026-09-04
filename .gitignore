@@ -1,0 +1,13 @@
+.playwright-mcp/
+.serena/
+
+# Локальные QA-скриншоты
+brand-header-red-1280.png
+gift-icon-white-1280.png
+gift-icon-white-320.png
+white-orange-cta-desktop.png
+
+# Системные и временные файлы
+.DS_Store
+Thumbs.db
+*.log

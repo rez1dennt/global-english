@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180" fill="none" stroke="#4b4f55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <g opacity=".96">
+    <path d="M92 170V84l8-12 8 12v86M79 170h42M84 160h32M86 141h28M88 122h24M90 102h20M91 84h18M94 72l6-13 6 13M100 59V36M96 36h8"/>
+    <path d="M79 170l4-10M121 170l-4-10M100 170v-15M95 155h10"/>
+    <circle cx="100" cy="94" r="7.5"/><path d="M100 94l3-3M100 94v-5"/>
+  </g>
+  <path d="m25 31 30-14-8 31-8-12-14-5zM39 36l13-13M55 15l4 6 7 1-5 5 1 7-7-4-7 4 2-7-5-5 7-1 3-6z"/>
+  <path d="m178 26 34-15-9 34-10-13-15-6zM191 31l16-15M236 52l4 6 7 1-5 5 1 7-7-4-7 4 2-7-5-5 7-1 3-6z"/>
+  <path d="M16 88c16-14 38-13 52 1-13 15-35 17-52 2L5 96l5-14 6 6z"/>
+  <text x="24" y="93" fill="#4b4f55" stroke="none" font-family="Arial, sans-serif" font-size="12" font-style="italic">hello</text>
+  <path d="M197 91c18-15 43-14 58 2-14 17-40 18-58 2l-13 6 5-16 8 6z"/>
+  <text x="210" y="98" fill="#4b4f55" stroke="none" font-family="Arial, sans-serif" font-size="18">你好</text>
+  <path d="M145 50c11 5 18 14 20 26M151 50l-7 1 2 7M137 132c15 0 26-7 33-20M137 132l8 5 2-9" stroke-dasharray="3 7"/>
+  <path d="m35 127 20-8-6 20-6-8-8-4zM225 137l23-10-7 23-7-9-9-4zM151 15l3 5 6 1-4 4 1 6-6-3-5 3 1-6-5-4 6-1 3-5z"/>
+</svg>
