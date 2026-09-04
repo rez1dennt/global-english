@@ -43,7 +43,12 @@ const server = createServer(async (request, response) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const address = server.address();
 const base = `http://127.0.0.1:${address.port}`;
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+let browser;
+try {
+    browser = await chromium.launch({ headless: true });
+} catch {
+    browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
+}
 const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
 const errors = [];
 let postRequests = 0;
@@ -113,6 +118,19 @@ try {
     assert.equal(await form.locator('[type="submit"]').isEnabled(), true);
     assert.match(await form.locator('[data-form-status]').innerText(), /\+7 \(960\) 064-31-41/);
 
+    await trigger.click();
+    await page.waitForFunction(() => document.querySelector('[data-enrollment-modal]').dataset.state === 'open');
+    const modalForm = page.locator('[data-form-source="modal"]');
+    await modalForm.locator('[name="name"]').fill('Анна');
+    await modalForm.locator('[name="phone"]').fill('+79600643141');
+    await modalForm.locator('[name="consent"]').check();
+    const modalPostBefore = postRequests;
+    await modalForm.locator('[type="submit"]').click();
+    await page.waitForFunction(() => document.querySelector('[data-form-source="modal"] [data-form-status]').textContent.includes('Онлайн-заявка пока недоступна'));
+    assert.equal(postRequests, modalPostBefore, 'Static modal form must not send POST requests');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.querySelector('[data-enrollment-modal]').dataset.state === 'closed');
+
     await page.locator('[data-cookie-settings]').click();
     await page.waitForFunction(() => document.querySelector('[data-cookie-banner]').dataset.state === 'open');
     await page.locator('[data-cookie-accept]').click();
@@ -121,10 +139,49 @@ try {
 
     const noJavaScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
     const noJavaScriptPage = await noJavaScript.newPage();
+    const noJavaScriptLeaks = [];
+    noJavaScriptPage.on('request', request => {
+        const body = request.postData() || '';
+        if (request.method() === 'POST' || /Анна|79600643141|%D0%90%D0%BD%D0%BD%D0%B0/i.test(request.url() + body)) noJavaScriptLeaks.push(request.url());
+    });
     await noJavaScriptPage.goto(base + '/', { waitUntil: 'load' });
     assert.equal(await noJavaScriptPage.locator('.primary-nav').isVisible(), true);
     assert.equal(await noJavaScriptPage.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    for (const source of ['inline', 'modal']) {
+        const noJavaScriptForm = noJavaScriptPage.locator(`[data-form-source="${source}"]`);
+        assert.equal(await noJavaScriptForm.locator('[type="submit"]').isDisabled(), true);
+        assert.equal(await noJavaScriptForm.locator('input[data-demo-name="name"]').getAttribute('name'), null);
+        assert.equal(await noJavaScriptForm.locator('input[data-demo-name="phone"]').getAttribute('name'), null);
+        await noJavaScriptForm.locator('input[data-demo-name="name"]').evaluate(field => { field.value = 'Анна'; });
+        await noJavaScriptForm.locator('input[data-demo-name="phone"]').evaluate(field => { field.value = '+7 (960) 064-31-41'; });
+        await noJavaScriptForm.evaluate(form => HTMLFormElement.prototype.submit.call(form));
+        await noJavaScriptPage.waitForLoadState('load');
+    }
+    await noJavaScriptPage.waitForTimeout(200);
+    assert.deepEqual(noJavaScriptLeaks, []);
     await noJavaScript.close();
+
+    const blockedScript = await browser.newContext({ viewport: { width: 320, height: 900 } });
+    await blockedScript.route('**/demo-form.js', route => route.abort());
+    const blockedScriptPage = await blockedScript.newPage();
+    const blockedLeaks = [];
+    blockedScriptPage.on('request', request => {
+        const body = request.postData() || '';
+        if (request.method() === 'POST' || /Анна|79600643141|%D0%90%D0%BD%D0%BD%D0%B0/i.test(request.url() + body)) blockedLeaks.push(request.url());
+    });
+    await blockedScriptPage.goto(base + '/', { waitUntil: 'load' });
+    for (const source of ['inline', 'modal']) {
+        const blockedForm = blockedScriptPage.locator(`[data-form-source="${source}"]`);
+        assert.equal(await blockedForm.locator('[type="submit"]').isDisabled(), true);
+        assert.equal(await blockedForm.locator('input[data-demo-name="name"]').getAttribute('name'), null);
+        assert.equal(await blockedForm.locator('input[data-demo-name="phone"]').getAttribute('name'), null);
+        await blockedForm.locator('input[data-demo-name="name"]').evaluate(field => { field.value = 'Анна'; });
+        await blockedForm.locator('input[data-demo-name="phone"]').evaluate(field => { field.value = '+7 (960) 064-31-41'; });
+        await blockedForm.evaluate(form => HTMLFormElement.prototype.submit.call(form));
+        await blockedScriptPage.waitForLoadState('load');
+    }
+    assert.deepEqual(blockedLeaks, []);
+    await blockedScript.close();
     assert.deepEqual(errors, []);
     console.log('VERCEL DEMO QA: PASS (3 routes, 4 viewports, interactions, Cookie, no-JS, zero POST requests)');
 } finally {

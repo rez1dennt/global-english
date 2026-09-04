@@ -24,3 +24,11 @@ npm run build
 Ожидаемые маршруты: `/`, `/privacy-policy/`, `/data-consent/`.
 
 Демонстрация закрыта от индексации. Формы проверяют данные, но не отправляют их наружу; после валидного заполнения показывается подтверждённый телефон школы.
+
+## Проверка перед публикацией
+
+```powershell
+npm install
+npx playwright install chromium
+npm run test:vercel
+```

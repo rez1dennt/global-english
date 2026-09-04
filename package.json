@@ -3,6 +3,10 @@
   "private": true,
   "scripts": {
     "export:vercel": "node scripts/export-vercel-demo.mjs",
-    "build": "node scripts/build-vercel-demo.mjs"
+    "build": "node scripts/build-vercel-demo.mjs",
+    "test:vercel": "npm run build && node --test global-english/tests/vercel-demo.test.mjs && node global-english/tests/vercel-demo-qa.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
   }
 }

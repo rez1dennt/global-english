@@ -8,7 +8,7 @@
     <link rel="icon" href="/global-english/assets/icons/brand.svg" type="image/svg+xml">
     <link rel="preload" href="/global-english/assets/fonts/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/global-english/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <title>Global English — языки в вашей школе</title><link rel="stylesheet" href="/global-english/assets/css/main.css?v=1788547767">    <meta name="robots" content="noindex, nofollow">
+    <title>Global English — языки в вашей школе</title><link rel="stylesheet" href="/global-english/assets/css/main.css">    <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="home">
 <a class="skip-link" href="#main-content">Перейти к содержанию</a>
@@ -273,15 +273,15 @@
     <section class="contact-section" id="contacts" aria-labelledby="contact-title">
         <div class="container contact-panel">
             <div class="contact-panel__copy"><p class="eyebrow">ПРИВЕТ, GLOBAL ENGLISH!</p><h2 id="contact-title">Новый язык.<br>Новые открытия.<br><span>Начнём?</span></h2><p>Оставьте заявку на бесплатное пробное занятие. Мы свяжемся с вами в ближайшее время.</p><a class="contact-phone" href="tel:+79600643141"><svg class="icon " width="24" height="24" aria-hidden="true" focusable="false"><use href="/global-english/assets/icons/ui.svg#phone"></use></svg> +7 (960) 064-31-41</a><span class="contact-panel__languages" aria-hidden="true">Hello! <i>你好!</i></span></div>
-            <div class="contact-form-card"><h3>Записаться на пробное занятие</h3><form class="trial-form " id="trial-form" action="/" method="post" novalidate data-trial-form data-form-source="inline">
+            <div class="contact-form-card"><h3>Записаться на пробное занятие</h3><form class="trial-form " id="trial-form" novalidate data-trial-form data-form-source="inline" action="#" data-static-demo-form>
     <input type="hidden" name="action" value="global_english_trial">
     <input type="hidden" name="form_source" value="inline">
     <input type="hidden" id="trial-nonce" name="global_english_nonce" value="preview">    <div class="honeypot" aria-hidden="true"><label for="trial-company">Компания</label><input id="trial-company" name="company" type="text" tabindex="-1" autocomplete="off"></div>
-    <div class="form-field"><label for="trial-name">Ваше имя</label><input id="trial-name" name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться?" minlength="2" maxlength="80" required aria-describedby="trial-name-error"><span class="field-error" id="trial-name-error"></span></div>
-    <div class="form-field"><label for="trial-phone">Телефон</label><input id="trial-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 999-99-99" required aria-describedby="trial-phone-error" data-phone-input><span class="field-error" id="trial-phone-error"></span></div>
+    <div class="form-field"><label for="trial-name">Ваше имя</label><input id="trial-name" data-demo-name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться?" minlength="2" maxlength="80" required aria-describedby="trial-name-error"><span class="field-error" id="trial-name-error"></span></div>
+    <div class="form-field"><label for="trial-phone">Телефон</label><input id="trial-phone" data-demo-name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 999-99-99" required aria-describedby="trial-phone-error" data-phone-input><span class="field-error" id="trial-phone-error"></span></div>
     <label class="consent"><input type="checkbox" name="consent" value="1" required aria-describedby="trial-consent-error"><span>Даю <a href="/data-consent/" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и принимаю <a href="/privacy-policy/" target="_blank" rel="noopener">политику конфиденциальности</a>.</span></label>
     <span class="field-error consent-error" id="trial-consent-error"></span>
-    <button class="button button--primary form-submit" type="submit">Записаться на бесплатное занятие <svg class="icon " width="24" height="24" aria-hidden="true" focusable="false"><use href="/global-english/assets/icons/ui.svg#arrow"></use></svg></button>
+    <button class="button button--primary form-submit" type="submit" disabled data-static-demo-submit>Записаться на бесплатное занятие <svg class="icon " width="24" height="24" aria-hidden="true" focusable="false"><use href="/global-english/assets/icons/ui.svg#arrow"></use></svg></button>
     <div class="form-status" role="status" aria-live="polite" data-form-status></div>
 </form>
 </div>
@@ -294,15 +294,15 @@
     <section class="enrollment-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="enrollment-modal-title" aria-describedby="enrollment-modal-description" data-modal-dialog tabindex="-1">
         <button class="enrollment-modal__close" type="button" aria-label="Закрыть форму записи" data-modal-close><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
         <div class="enrollment-modal__header"><p class="eyebrow">ДАВАЙТЕ ЗНАКОМИТЬСЯ</p><h2 id="enrollment-modal-title">Первое занятие —<br><span>бесплатно</span></h2><p id="enrollment-modal-description">Оставьте контакты — мы свяжемся с вами в ближайшее время.</p></div>
-        <form class="trial-form enrollment-modal__form" id="modal-trial-form" action="/" method="post" novalidate data-trial-form data-form-source="modal">
+        <form class="trial-form enrollment-modal__form" id="modal-trial-form" novalidate data-trial-form data-form-source="modal" action="#" data-static-demo-form>
     <input type="hidden" name="action" value="global_english_trial">
     <input type="hidden" name="form_source" value="modal">
     <input type="hidden" id="modal-trial-nonce" name="global_english_nonce" value="preview">    <div class="honeypot" aria-hidden="true"><label for="modal-trial-company">Компания</label><input id="modal-trial-company" name="company" type="text" tabindex="-1" autocomplete="off"></div>
-    <div class="form-field"><label for="modal-trial-name">Ваше имя</label><input id="modal-trial-name" name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться?" minlength="2" maxlength="80" required aria-describedby="modal-trial-name-error"><span class="field-error" id="modal-trial-name-error"></span></div>
-    <div class="form-field"><label for="modal-trial-phone">Телефон</label><input id="modal-trial-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 999-99-99" required aria-describedby="modal-trial-phone-error" data-phone-input><span class="field-error" id="modal-trial-phone-error"></span></div>
+    <div class="form-field"><label for="modal-trial-name">Ваше имя</label><input id="modal-trial-name" data-demo-name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться?" minlength="2" maxlength="80" required aria-describedby="modal-trial-name-error"><span class="field-error" id="modal-trial-name-error"></span></div>
+    <div class="form-field"><label for="modal-trial-phone">Телефон</label><input id="modal-trial-phone" data-demo-name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 999-99-99" required aria-describedby="modal-trial-phone-error" data-phone-input><span class="field-error" id="modal-trial-phone-error"></span></div>
     <label class="consent"><input type="checkbox" name="consent" value="1" required aria-describedby="modal-trial-consent-error"><span>Даю <a href="/data-consent/" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и принимаю <a href="/privacy-policy/" target="_blank" rel="noopener">политику конфиденциальности</a>.</span></label>
     <span class="field-error consent-error" id="modal-trial-consent-error"></span>
-    <button class="button button--primary form-submit" type="submit">Записаться на бесплатное занятие <svg class="icon " width="24" height="24" aria-hidden="true" focusable="false"><use href="/global-english/assets/icons/ui.svg#arrow"></use></svg></button>
+    <button class="button button--primary form-submit" type="submit" disabled data-static-demo-submit>Записаться на бесплатное занятие <svg class="icon " width="24" height="24" aria-hidden="true" focusable="false"><use href="/global-english/assets/icons/ui.svg#arrow"></use></svg></button>
     <div class="form-status" role="status" aria-live="polite" data-form-status></div>
 </form>
     </section>
@@ -330,6 +330,6 @@
     <div class="cookie-banner__copy"><strong>Немного о cookie</strong><p>Сохраняем ваш выбор в браузере. Необязательная аналитика не подключена. <a href="/privacy-policy/">Подробнее</a></p></div>
     <div class="cookie-banner__actions"><button class="button button--secondary" type="button" data-cookie-essential>Только необходимые</button><button class="button button--primary" type="button" data-cookie-accept>Принять</button></div>
 </aside>
-<script src="/global-english/assets/js/phone-mask.js?v=1788374909"></script><script src="/global-english/assets/js/cookie-consent.js?v=1788376903"></script><script src="/global-english/assets/js/scroll-lock.js?v=1788453621"></script><script src="/global-english/assets/js/modal.js?v=1788453806"></script><script src="/global-english/assets/js/main.js?v=1788545517"></script>    <script src="/demo-form.js" defer></script>
+<script src="/global-english/assets/js/phone-mask.js"></script><script src="/global-english/assets/js/cookie-consent.js"></script><script src="/global-english/assets/js/scroll-lock.js"></script><script src="/global-english/assets/js/modal.js"></script><script src="/global-english/assets/js/main.js"></script>    <script src="/demo-form.js"></script>
 </body>
 </html>
