@@ -47,6 +47,11 @@
             }
             if (pendingTarget) {
                 pendingTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
+                if (!pendingTarget.hasAttribute('tabindex')) {
+                    pendingTarget.setAttribute('tabindex', '-1');
+                    pendingTarget.addEventListener('blur', function () { this.removeAttribute('tabindex'); }, { once: true });
+                }
+                pendingTarget.focus({ preventScroll: true });
                 pendingTarget = null;
             }
         }
@@ -120,6 +125,7 @@
                 pendingTarget = target;
                 panel.querySelectorAll('[aria-current]').forEach(function (item) { item.removeAttribute('aria-current'); });
                 link.setAttribute('aria-current', 'location');
+                closeMenu(true);
             }
         });
 

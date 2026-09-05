@@ -80,14 +80,21 @@ try {
         assert.equal(await page.locator('body').evaluate(el => el.classList.contains('menu-open')), true, 'Keep background locked through closing animation');
         await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
         assert.ok(Math.abs(await page.evaluate(() => scrollY) - scrollBefore) <= 1);
-        await toggle.tap();
-        await page.waitForTimeout(350);
-        await panel.locator('a[href="#teachers"]').tap();
-        assert.equal(await toggle.getAttribute('aria-expanded'), 'true', 'Selecting a section keeps the menu open until cross');
-        await toggle.tap();
-        await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
-        await page.waitForTimeout(700);
-        assert.ok(await page.locator('#teachers').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 180), 'Selected section must be reached after cross');
+        for (const section of ['about', 'reviews', 'prices', 'teachers']) {
+            await toggle.tap();
+            await page.waitForTimeout(350);
+            await panel.locator(`a[href="#${section}"]`).tap();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'Selecting a section must close the menu without a second tap');
+            await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
+            assert.equal(await page.locator('body').evaluate(el => el.classList.contains('menu-open')), false);
+            const position = await page.locator(`#${section}`).evaluate(el => ({
+                top: el.getBoundingClientRect().top,
+                header: document.querySelector('[data-site-header]').getBoundingClientRect().bottom,
+                focused: document.activeElement === el,
+            }));
+            assert.ok(position.top >= position.header - 1 && position.top < position.header + 100, `${section} must be visible below the header`);
+            assert.equal(position.focused, true, 'Keyboard focus must follow navigation to the section');
+        }
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await toggle.tap();
         await page.waitForTimeout(50);
