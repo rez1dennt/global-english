@@ -81,11 +81,11 @@ try {
     assert.equal(await page.locator('[data-menu-panel]').getAttribute('data-state'),'open');
     const afterMenu = await page.evaluate(() => ({ x:document.querySelector('.brand').getBoundingClientRect().left, top:document.querySelector('[data-site-header]').getBoundingClientRect().top }));
     assert.ok(Math.abs(beforeMenu.x-afterMenu.x)<=1); assert.equal(afterMenu.top,0);
-    await page.keyboard.press('Escape'); await sleep(420);
+    await page.locator('[data-menu-toggle]').click(); await sleep(420);
     assert.equal(await page.locator('[data-menu-panel]').getAttribute('data-state'),'closed');
     assert.ok(Math.abs((await page.evaluate(()=>scrollY))-beforeMenu.y)<=1);
     assert.equal(await page.locator('[data-menu-toggle]').evaluate(e=>e===document.activeElement),true);
-    console.log('burger geometry + Escape + focus: PASS');
+    console.log('burger geometry + cross + focus: PASS');
 
     await page.setViewportSize({width:1280,height:1000});
     await load();

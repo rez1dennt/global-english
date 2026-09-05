@@ -91,7 +91,7 @@ try {
     await page.locator('[data-menu-toggle]').click();
     await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'open');
     assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'), 'true');
-    await page.keyboard.press('Escape');
+    await page.locator('[data-menu-toggle]').click();
     await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
 
     const trigger = page.locator('.hero [data-enrollment-modal-trigger]');

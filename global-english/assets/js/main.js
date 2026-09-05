@@ -16,6 +16,40 @@
 
         var scrollPosition = 0;
         var closeTimer = 0;
+        var locked = false;
+        var pendingTarget = null;
+        var background = [];
+
+        function lockBackground() {
+            background = [];
+            var header = toggle.closest('[data-site-header]');
+            Array.from(document.body.children).concat(Array.from(toggle.parentElement.children)).forEach(function (element) {
+                if (element === header || element === panel || element === toggle || element.tagName === 'SCRIPT') { return; }
+                background.push({ element: element, inert: element.inert });
+                element.inert = true;
+            });
+        }
+
+        function finishClose() {
+            if (toggle.getAttribute('aria-expanded') === 'true') { return; }
+            window.clearTimeout(closeTimer);
+            setClosedState();
+            if (!locked) { return; }
+            locked = false;
+            background.forEach(function (entry) { entry.element.inert = entry.inert; });
+            background = [];
+            if (scrollLock) {
+                scrollLock.unlock();
+            } else {
+                document.body.classList.remove('menu-open');
+                document.body.style.top = '';
+                window.scrollTo({ top: scrollPosition, left: 0, behavior: 'instant' });
+            }
+            if (pendingTarget) {
+                pendingTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
+                pendingTarget = null;
+            }
+        }
 
         function isMobileMenu() {
             return window.matchMedia('(max-width: 60rem)').matches;
@@ -34,7 +68,11 @@
 
         function openMenu() {
             window.clearTimeout(closeTimer);
-            scrollPosition = scrollLock ? scrollLock.lock() : window.scrollY;
+            if (!locked) {
+                scrollPosition = scrollLock ? scrollLock.lock() : window.scrollY;
+                lockBackground();
+                locked = true;
+            }
             toggle.setAttribute('aria-expanded', 'true');
             toggle.setAttribute('aria-label', 'Закрыть меню');
             panel.dataset.state = 'open';
@@ -46,7 +84,7 @@
             }
             var focusable = focusableElements(panel);
             if (focusable[0]) {
-                focusable[0].focus();
+                focusable[0].focus({ preventScroll: true });
             }
         }
 
@@ -59,14 +97,7 @@
             panel.dataset.state = 'closing';
             panel.inert = true;
             panel.setAttribute('aria-hidden', 'true');
-            if (scrollLock) {
-                scrollLock.unlock();
-            } else {
-                document.body.classList.remove('menu-open');
-                document.body.style.top = '';
-                window.scrollTo({ top: scrollPosition, left: 0, behavior: 'instant' });
-            }
-            closeTimer = window.setTimeout(setClosedState, 360);
+            closeTimer = window.setTimeout(finishClose, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 360);
             if (returnFocus) {
                 toggle.focus({ preventScroll: true });
             }
@@ -74,21 +105,21 @@
 
         toggle.addEventListener('click', function () {
             if (toggle.getAttribute('aria-expanded') === 'true') {
-                closeMenu(false);
+                closeMenu(true);
             } else {
                 openMenu();
             }
         });
 
         panel.addEventListener('click', function (event) {
-            if (event.target.closest('a[href^="#"]')) {
-                closeMenu(false);
-            }
-        });
-
-        document.addEventListener('pointerdown', function (event) {
-            if (toggle.getAttribute('aria-expanded') === 'true' && !panel.contains(event.target) && !toggle.contains(event.target)) {
-                closeMenu(false);
+            var link = event.target.closest('a[href^="#"]');
+            if (link && isMobileMenu() && toggle.getAttribute('aria-expanded') === 'true') {
+                var target = document.getElementById(link.getAttribute('href').slice(1));
+                if (!target) { return; }
+                event.preventDefault();
+                pendingTarget = target;
+                panel.querySelectorAll('[aria-current]').forEach(function (item) { item.removeAttribute('aria-current'); });
+                link.setAttribute('aria-current', 'location');
             }
         });
 
@@ -98,7 +129,6 @@
             }
             if (event.key === 'Escape') {
                 event.preventDefault();
-                closeMenu(true);
                 return;
             }
             if (event.key !== 'Tab') {
@@ -119,6 +149,7 @@
         window.addEventListener('resize', function () {
             if (window.innerWidth > 960) {
                 closeMenu(false);
+                finishClose();
                 setClosedState();
             } else if (toggle.getAttribute('aria-expanded') !== 'true') {
                 setClosedState();
