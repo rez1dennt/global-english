@@ -59,7 +59,7 @@ page.on('response', response => { if (response.status() >= 400) errors.push(`${r
 page.on('request', request => { if (request.method() === 'POST') postRequests += 1; });
 
 try {
-    for (const width of [1280, 768, 360, 320]) {
+    for (const width of [1280, 768, 400, 360, 320]) {
         await page.setViewportSize({ width, height: 1000 });
         for (const route of ['/', '/privacy-policy/', '/data-consent/']) {
             errors.length = 0;
@@ -79,6 +79,31 @@ try {
             assert.deepEqual(state.brokenImages, []);
             assert.equal(state.demo, 'true');
             assert.deepEqual(errors, [], `${route} errors at ${width}px`);
+            if (route === '/') {
+                if (await page.locator('[data-cookie-essential]').isVisible()) await page.locator('[data-cookie-essential]').click();
+                await page.locator('.hero [data-enrollment-modal-trigger]').click();
+                await page.waitForFunction(() => document.querySelector('[data-enrollment-modal]').dataset.state === 'open');
+                await page.waitForTimeout(350);
+                const centered = await page.locator('[data-modal-dialog]').evaluate(el => {
+                    const box = el.getBoundingClientRect();
+                    return { x: box.x + box.width / 2, y: box.y + box.height / 2, width: innerWidth, height: innerHeight };
+                });
+                assert.ok(Math.abs(centered.x - centered.width / 2) <= 1, `Modal must be horizontally centered at ${width}px`);
+                assert.ok(Math.abs(centered.y - centered.height / 2) <= 1, `Modal must be vertically centered at ${width}px`);
+                if (width === 400 && process.env.GE_QA_SCREENSHOTS) {
+                    await page.screenshot({ path: join(process.env.GE_QA_SCREENSHOTS, 'modal-centered-400.png') });
+                }
+                if (width === 320) {
+                    await page.setViewportSize({ width, height: 480 });
+                    const short = await page.locator('[data-modal-dialog]').boundingBox();
+                    assert.ok(short.y >= 11 && short.y + short.height <= 469, 'Short-screen dialog must stay inside the viewport');
+                    await page.locator('[data-form-source="modal"] [type="submit"]').scrollIntoViewIfNeeded();
+                    assert.equal(await page.locator('[data-form-source="modal"] [type="submit"]').isVisible(), true);
+                    await page.setViewportSize({ width, height: 1000 });
+                }
+                await page.keyboard.press('Escape');
+                await page.waitForFunction(() => document.querySelector('[data-enrollment-modal]').dataset.state === 'closed');
+            }
         }
     }
 
@@ -209,7 +234,7 @@ try {
     assert.deepEqual(blockedErrors, []);
     await blockedScript.close();
     assert.deepEqual(errors, []);
-    console.log('VERCEL DEMO QA: PASS (3 routes, 4 viewports, interactions, Cookie, no-JS, zero POST requests)');
+    console.log('VERCEL DEMO QA: PASS (3 routes, 5 viewports, centered modal, short screen, interactions, Cookie, no-JS, zero POST requests)');
 } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

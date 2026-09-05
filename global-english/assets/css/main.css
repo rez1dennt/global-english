@@ -569,8 +569,8 @@ html.js .price-disclosure[data-state="open"] .price-disclosure__content { grid-t
     .footer-documents { gap: var(--space-5); }
     .site-footer__grid { grid-template-columns: 1fr 1fr; gap: var(--space-8) var(--space-4); }
     .footer-brand,.footer-contact { grid-column: 1/-1; }
-    .enrollment-modal { align-items: end; padding: var(--space-3); }
-    .enrollment-modal__dialog { width: 100%; max-height: calc(100dvh - 2 * var(--space-3)); padding: var(--space-8) var(--space-6); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-sm); }
+    .enrollment-modal { padding: var(--space-3); }
+    .enrollment-modal__dialog { width: 100%; max-height: calc(100dvh - 2 * var(--space-3)); padding: var(--space-8) var(--space-6); border-radius: var(--radius-lg); }
     .enrollment-modal__header h2 { font-size: 1.9rem; }
     .cookie-banner { padding: var(--space-4); bottom: var(--space-3); }
     .cookie-banner__copy strong { font-size: .8rem; }
