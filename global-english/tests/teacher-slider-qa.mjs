@@ -5,7 +5,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const page=await browser.newPage();
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
-const url='http://127.0.0.1:8765/global-english/tests/preview.php?teachers=208#teachers';
+const url=process.env.GE_PREVIEW_URL || 'http://127.0.0.1:8765/global-english/tests/preview.php?teachers=208#teachers';
 const slider=page.locator('[data-teacher-slider]');
 const index=async()=>Number(await slider.getAttribute('data-index'));
 async function idle(){await page.waitForFunction(()=>document.querySelector('[data-teacher-slider]').dataset.moving==='false');}
@@ -18,7 +18,17 @@ try{
   assert.equal(await slider.locator('.teacher-card:not([data-slider-clone])').count(),6);
   assert.equal(await slider.locator('[data-slider-clone]').count(),12);
   assert.equal(await slider.locator('[data-slider-clone]:not([aria-hidden=true])').count(),0);
-  assert.ok(await page.evaluate(()=>document.querySelector('[data-teacher-slider]').getBoundingClientRect().bottom<document.querySelector('.director').getBoundingClientRect().top));
+  assert.ok(await page.evaluate(()=>document.querySelector('[data-teacher-slider]').getBoundingClientRect().bottom<document.querySelector('.director-contact').getBoundingClientRect().top));
+  const start = await slider.evaluate(async el => {
+   const track = el.querySelector('[data-slider-track]');
+   const step = track.children[0].getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap);
+   const before = new DOMMatrixReadOnly(getComputedStyle(track).transform).m41;
+   el.querySelector('[data-slider-next]').click();
+   await new Promise(resolve => setTimeout(resolve, 100));
+   return Math.abs(new DOMMatrixReadOnly(getComputedStyle(track).transform).m41 - before) / step;
+  });
+  assert.ok(start > 0 && start < .25, `Slider should ease into motion, not cover ${Math.round(start * 100)}% of a card in the first 100ms`);
+  await idle(); await slider.locator('[data-slider-prev]').click(); await idle();
   for(let i=0;i<8;i++){
    await slider.locator('[data-slider-next]').click();await idle();assert.equal(await index(),(i+1)%6);
    assert.ok(await slider.locator('[data-slider-prev]').isEnabled());assert.ok(await slider.locator('[data-slider-next]').isEnabled());
