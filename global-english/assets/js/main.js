@@ -24,7 +24,7 @@
             background = [];
             var header = toggle.closest('[data-site-header]');
             Array.from(document.body.children).concat(Array.from(toggle.parentElement.children)).forEach(function (element) {
-                if (element === header || element === panel || element === toggle || element.tagName === 'SCRIPT') { return; }
+                if (element === header || element === panel || element === toggle || element.matches('[data-cookie-banner]') || element.tagName === 'SCRIPT') { return; }
                 background.push({ element: element, inert: element.inert });
                 element.inert = true;
             });
@@ -135,15 +135,14 @@
                 return;
             }
             var focusable = [toggle].concat(focusableElements(panel));
-            var first = focusable[0];
-            var last = focusable[focusable.length - 1];
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
+            var cookieBanner = document.querySelector('[data-cookie-banner][data-state="open"]');
+            if (cookieBanner && !cookieBanner.inert) {
+                focusable = focusable.concat(focusableElements(cookieBanner));
             }
+            var currentIndex = focusable.indexOf(document.activeElement);
+            var nextIndex = (currentIndex + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
+            event.preventDefault();
+            focusable[nextIndex].focus({ preventScroll: true });
         });
 
         window.addEventListener('resize', function () {

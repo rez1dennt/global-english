@@ -11,6 +11,43 @@ try {
         const page = await context.newPage();
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(base, { waitUntil: 'networkidle' });
+        const cookie = page.locator('[data-cookie-banner]');
+        const menuButton = page.locator('[data-menu-toggle]');
+        for (const choice of ['all', 'necessary']) {
+            if (choice === 'necessary') await page.locator('[data-cookie-settings]').click();
+            await menuButton.tap();
+            await page.waitForTimeout(400);
+            assert.equal(await cookie.evaluate(el => el.inert), false, 'Cookie banner must remain interactive above the menu');
+            const accept = cookie.locator('[data-cookie-accept]');
+            assert.equal(await accept.evaluate(el => {
+                const box = el.getBoundingClientRect();
+                return el.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
+            }), true, 'Accept must be above the menu and receive touches');
+            await menuButton.focus();
+            await page.keyboard.press('Shift+Tab');
+            assert.equal(await accept.evaluate(el => el === document.activeElement), true, 'Keyboard loop must include cookie buttons');
+            await page.keyboard.press('Tab');
+            assert.equal(await menuButton.evaluate(el => el === document.activeElement), true);
+            await page.keyboard.press('Tab');
+            assert.equal(await page.locator('[data-menu-panel] a').first().evaluate(el => el === document.activeElement), true);
+            await accept.focus();
+            if (width === 320 && choice === 'all') {
+                await mkdir('docs/source-review/redesign-qa', { recursive: true });
+                await page.screenshot({ path: 'docs/source-review/redesign-qa/cookie-over-menu-320.png' });
+            }
+            if (choice === 'all') await page.keyboard.press('Enter');
+            else await cookie.locator('[data-cookie-essential]').tap();
+            await page.waitForFunction(() => document.querySelector('[data-cookie-banner]').dataset.state === 'closed');
+            assert.equal(await page.evaluate(() => localStorage.getItem('globalEnglishCookieConsentV1')), choice);
+            assert.equal(await menuButton.getAttribute('aria-expanded'), 'true', 'Cookie choice must not close navigation');
+            assert.equal(await page.locator('body').evaluate(el => el.classList.contains('menu-open')), true);
+            assert.equal(await cookie.evaluate(el => el.contains(document.activeElement)), false, 'Focus must leave the dismissed banner');
+            await menuButton.tap();
+            await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
+            assert.equal(await cookie.evaluate(el => el.inert), true, 'Closing menu must not reactivate dismissed cookie banner');
+        }
+        await page.evaluate(() => localStorage.removeItem('globalEnglishCookieConsentV1'));
+        await page.reload({ waitUntil: 'networkidle' });
         await page.locator('[data-cookie-essential]').click();
         await page.evaluate(() => scrollTo({ top: 420, behavior: 'instant' }));
         const toggle = page.locator('[data-menu-toggle]');

@@ -51,6 +51,10 @@
         }
 
         function closeBanner() {
+            var menuToggle = document.querySelector('[data-menu-toggle][aria-expanded="true"]');
+            if (menuToggle && banner.contains(document.activeElement)) {
+                menuToggle.focus({ preventScroll: true });
+            }
             banner.dataset.state = 'closing';
             banner.setAttribute('aria-hidden', 'true');
             closeTimer = window.setTimeout(function () {
