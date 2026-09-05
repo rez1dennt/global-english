@@ -520,6 +520,7 @@ html.js .price-disclosure[data-state="open"] .price-disclosure__content { grid-t
     .js .primary-nav a[aria-current="location"] { color: var(--color-sky-strong); background: var(--color-soft); }
     .js .primary-nav[data-state="open"] { visibility: visible; transform: translate3d(0,0,0); opacity: 1; pointer-events: auto; transition-delay: var(--motion-none); }
     .js .primary-nav[data-state="closing"] { visibility: visible; transition-delay: var(--motion-none); }
+    .js .primary-nav[data-state="closing"][data-navigation="true"] { transition-duration: var(--motion-fast); }
     .primary-nav a { min-height: 3.5rem; border-bottom: 1px solid var(--color-border); }
     .primary-nav a::after { display: none; }
     .primary-nav .mobile-nav-contact { display: block; color: var(--color-sky-strong); }

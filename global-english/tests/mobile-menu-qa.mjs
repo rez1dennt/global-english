@@ -85,8 +85,7 @@ try {
             await page.waitForTimeout(350);
             await panel.locator(`a[href="#${section}"]`).tap();
             assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'Selecting a section must close the menu without a second tap');
-            await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
-            assert.equal(await page.locator('body').evaluate(el => el.classList.contains('menu-open')), false);
+            assert.equal(await page.locator('body').evaluate(el => el.classList.contains('menu-open')), false, 'Navigation must unlock the page immediately, without waiting for the closing animation');
             const position = await page.locator(`#${section}`).evaluate(el => ({
                 top: el.getBoundingClientRect().top,
                 header: document.querySelector('[data-site-header]').getBoundingClientRect().bottom,
@@ -94,6 +93,7 @@ try {
             }));
             assert.ok(position.top >= position.header - 1 && position.top < position.header + 100, `${section} must be visible below the header`);
             assert.equal(position.focused, true, 'Keyboard focus must follow navigation to the section');
+            await page.waitForFunction(() => document.querySelector('[data-menu-panel]').dataset.state === 'closed');
         }
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await toggle.tap();

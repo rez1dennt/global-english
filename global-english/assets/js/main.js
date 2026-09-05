@@ -34,6 +34,10 @@
             if (toggle.getAttribute('aria-expanded') === 'true') { return; }
             window.clearTimeout(closeTimer);
             setClosedState();
+            releasePage();
+        }
+
+        function releasePage() {
             if (!locked) { return; }
             locked = false;
             background.forEach(function (entry) { entry.element.inert = entry.inert; });
@@ -73,6 +77,7 @@
 
         function openMenu() {
             window.clearTimeout(closeTimer);
+            delete panel.dataset.navigation;
             if (!locked) {
                 scrollPosition = scrollLock ? scrollLock.lock() : window.scrollY;
                 lockBackground();
@@ -99,13 +104,15 @@
             }
             toggle.setAttribute('aria-expanded', 'false');
             toggle.setAttribute('aria-label', 'Открыть меню');
+            if (pendingTarget) { panel.dataset.navigation = 'true'; }
             panel.dataset.state = 'closing';
             panel.inert = true;
             panel.setAttribute('aria-hidden', 'true');
-            closeTimer = window.setTimeout(finishClose, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 360);
+            closeTimer = window.setTimeout(finishClose, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : (pendingTarget ? 180 : 360));
             if (returnFocus) {
                 toggle.focus({ preventScroll: true });
             }
+            if (pendingTarget) { releasePage(); }
         }
 
         toggle.addEventListener('click', function () {
